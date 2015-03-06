@@ -10,15 +10,15 @@ import scala.scalajs.js.annotation.JSExport
 object TutorialApp extends JSApp {
 
   def main(): Unit = {
-    appendPar(document.body, "Hello World")
+    jQuery(setupUI _)
   }
 
-  def appendPar(targetNode: dom.Node, text: String): Unit = {
-    jQuery("body").append("<p>[message]</p>")
-  }
-
-  @JSExport
   def addClickedMessage(): Unit = {
-    appendPar(document.body, "You clicked the button!")
+    jQuery("body").append("<p>You clicked the button!</p>")
+  }
+
+  def setupUI(): Unit = {
+    jQuery("#click-me-button").click(addClickedMessage _)
+    jQuery("body").append("<p>Hello World</p>")
   }
 }
