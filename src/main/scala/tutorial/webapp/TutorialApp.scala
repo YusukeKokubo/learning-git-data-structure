@@ -2,8 +2,10 @@ package tutorial.webapp
 
 import lib.{Repository, GitHub}
 import org.scalajs.dom
+import org.scalajs.dom.Event
 import rx.core.{Var, Rx}
 
+import scala.scalajs.js
 import scala.scalajs.js.{JSApp}
 import org.scalajs.jquery.jQuery
 
@@ -19,10 +21,27 @@ object TutorialApp extends JSApp {
 
   val repositories: Var[Seq[Repository]] = Var(Seq[Repository]())
 
+  val userInputBox = input(
+    `id`:="userInputBox",
+    autofocus:=true,
+    autocomplete:=false,
+    placeholder := "user name here.",
+    value:="YusukeKokubo"
+  ).render
+
+  val currentUser = Var("")
+
   def main(): Unit = {
-    setupUI()
     dom.document.body.appendChild(
       section(
+        form(userInputBox,
+          button(`type`:="submit", onclick:={ () =>
+            GitHub.repos(Var(userInputBox.value)()).onComplete {
+              case Success(msg) => repositories.update(msg)
+              case Failure(t) => jQuery("body").append(t.getMessage)
+            }
+            false
+          })("send")),
         Rx {
           ul(
             for (r <- repositories()) yield {
@@ -35,17 +54,4 @@ object TutorialApp extends JSApp {
     )
   }
 
-  def addClickedMessage(): Unit = {
-
-    GitHub.repos("YusukeKokubo").onComplete {
-      case Success(msg) => repositories.update(msg)
-      case Failure(t) => jQuery("body").append(t.getMessage)
-    }
-  }
-
-  def setupUI(): Unit = {
-    jQuery("""<button type="button">Click me!</button>""")
-      .click(addClickedMessage _)
-      .appendTo(jQuery("body"))
-  }
 }
