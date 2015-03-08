@@ -1,7 +1,8 @@
-package tutorial.webapp
+package lib
 
-import scala.concurrent.{Promise, Future}
-import org.scalajs.dom.{XMLHttpRequest, Event}
+import org.scalajs.dom.{Event, XMLHttpRequest}
+
+import scala.concurrent.{Future, Promise}
 
 case class AjaxException(xhr: XMLHttpRequest) extends Exception
 

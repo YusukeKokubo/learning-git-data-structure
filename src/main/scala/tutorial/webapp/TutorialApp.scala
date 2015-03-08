@@ -1,5 +1,7 @@
 package tutorial.webapp
 
+import lib.{GitHub, Ajax}
+
 import scala.scalajs.js
 import scala.scalajs.js.{Dynamic, JSApp}
 import org.scalajs.jquery.jQuery
@@ -15,16 +17,14 @@ object TutorialApp extends JSApp {
   }
 
   def addClickedMessage(): Unit = {
-    val text = for {
-      res1 <- Ajax.get("https://api.github.com/users/YusukeKokubo/repos")
-    } yield {
-      res1.responseText
-    }
 
-
-    text.onComplete {
+    GitHub.repos("YusukeKokubo").onComplete {
       case Success(msg) => {
-        jQuery("body").append(msg)
+        jQuery("body").append("<ul>")
+        msg.foreach(r =>
+          jQuery("body").append("<li>" + r.name + "</li>")
+        )
+        jQuery("body").append("</ul>")
       }
       case Failure(t) => jQuery("body").append(t.getMessage)
     }
