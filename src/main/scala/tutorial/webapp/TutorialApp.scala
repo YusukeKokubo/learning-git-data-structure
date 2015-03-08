@@ -1,11 +1,12 @@
 package tutorial.webapp
 
-import scala.scalajs.js.JSApp
-import org.scalajs.dom
-import dom.document
+import scala.scalajs.js
+import scala.scalajs.js.{Dynamic, JSApp}
 import org.scalajs.jquery.jQuery
 
-import scala.scalajs.js.annotation.JSExport
+import scala.util.{Failure, Success}
+
+import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
 
 object TutorialApp extends JSApp {
 
@@ -14,7 +15,19 @@ object TutorialApp extends JSApp {
   }
 
   def addClickedMessage(): Unit = {
-    jQuery("body").append("<p>You clicked the button!</p>")
+    val text = for {
+      res1 <- Ajax.get("https://api.github.com/users/YusukeKokubo/repos")
+    } yield {
+      res1.responseText
+    }
+
+
+    text.onComplete {
+      case Success(msg) => {
+        jQuery("body").append(msg)
+      }
+      case Failure(t) => jQuery("body").append(t.getMessage)
+    }
   }
 
   def setupUI(): Unit = {
