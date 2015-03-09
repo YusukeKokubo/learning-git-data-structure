@@ -3,6 +3,7 @@ package tutorial.webapp
 import lib.{Repository, GitHub}
 import org.scalajs.dom
 import org.scalajs.dom.Event
+import org.scalajs.dom.html.Element
 import rx.core.{Var, Rx}
 
 import scala.scalajs.js
@@ -29,29 +30,46 @@ object TutorialApp extends JSApp {
     value:="YusukeKokubo"
   ).render
 
+  val userSubmit = button(
+    `type`:="submit",
+    onclick:={ () =>
+      getRepositories(Var(userInputBox.value)())
+      false
+    })("send").render
+
   val currentUser = Var("")
 
+  val errorMessage = Var("")
+
   def main(): Unit = {
-    dom.document.body.appendChild(
-      section(
-        form(userInputBox,
-          button(`type`:="submit", onclick:={ () =>
-            GitHub.repos(Var(userInputBox.value)()).onComplete {
-              case Success(msg) => repositories.update(msg)
-              case Failure(t) => jQuery("body").append(t.getMessage)
-            }
-            false
-          })("send")),
-        Rx {
-          ul(
-            for (r <- repositories()) yield {
-              li(
-                r.name
-              )
-            }
-          )
-        }).render
-    )
+    dom.document.body.appendChild(setupUI())
   }
 
+  def setupUI(): Element = {
+    section(
+      Rx {
+        div(`class`:="error")(
+          p(errorMessage())
+        )
+      },
+      form(userInputBox, userSubmit),
+      Rx {
+        ul(
+          for (r <- repositories()) yield {
+            li(r.name)
+          }
+        )
+      }).render
+  }
+
+  def getRepositories(user: String): Unit = {
+    if(user.isEmpty) {
+      errorMessage() = "input user name."
+      return
+    }
+    GitHub.repos(user).onComplete {
+      case Success(msg) => repositories() = msg
+      case Failure(t) => errorMessage() = t.getMessage
+    }
+  }
 }
