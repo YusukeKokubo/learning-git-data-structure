@@ -37,19 +37,29 @@ case class Repository(
 //                       updated_at: LocalDateTime
                        )
 
+case class ReferenceObject(`type`: String, sha: String, url: String)
+
+case class Reference(ref: String,
+                     url: String,
+                     `object`: ReferenceObject)
 
 
 object GitHub {
 
   def repos(user: String): Future[Seq[Repository]] = {
-
-    val text = for {
+    for {
       res1 <- Ajax.get("https://api.github.com/users/" + user + "/repos")
     } yield {
       read[Seq[Repository]](res1.responseText)
     }
+  }
 
-    return text
+  def refs(owner: String, repo: String): Future[Seq[Reference]] = {
+    for {
+      res1 <- Ajax.get("https://api.github.com/repos/" + owner + "/" + repo + "/git/refs")
+    } yield {
+      read[Seq[Reference]](res1.responseText)
+    }
   }
 }
 

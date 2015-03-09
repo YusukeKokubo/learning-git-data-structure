@@ -1,6 +1,6 @@
 package tutorial.webapp
 
-import lib.{Repository, GitHub}
+import lib.{Reference, Repository, GitHub}
 import org.scalajs.dom
 import org.scalajs.dom.Event
 import org.scalajs.dom.html.Element
@@ -21,6 +21,7 @@ object TutorialApp extends JSApp {
   import Framework._
 
   val repositories: Var[Seq[Repository]] = Var(Seq[Repository]())
+
 
   val userInputBox = input(
     `id`:="userInputBox",
@@ -54,10 +55,24 @@ object TutorialApp extends JSApp {
       Rx {
         ul(
           for (r <- repositories()) yield {
-            li(r.name)
+            val refs = Var(Seq[Reference]())
+            li(r.name)(
+              a(href:="#")(onclick:={() =>
+                getReferences(Var(userInputBox.value)(), r.name, refs)
+                false
+              })("refs"),
+              Rx {
+                ul(
+                  for(rf <- refs()) yield  {
+                    li(rf.ref)
+                  }
+                )
+              }
+            )
           }
         )
-      }).render
+      }
+    ).render
   }
 
   def getRepositories(user: String): Unit = {
@@ -67,6 +82,13 @@ object TutorialApp extends JSApp {
     }
     GitHub.repos(user).onComplete {
       case Success(msg) => repositories() = msg
+      case Failure(t) => errorMessage() = t.getMessage
+    }
+  }
+
+  def getReferences(owner: String, repo: String, result: Var[Seq[Reference]]): Unit = {
+    GitHub.refs(owner, repo).onComplete {
+      case Success(msg) => result() = msg
       case Failure(t) => errorMessage() = t.getMessage
     }
   }
