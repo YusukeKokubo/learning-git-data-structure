@@ -37,8 +37,6 @@ object TutorialApp extends JSApp {
       false
     })("send").render
 
-  val currentUser = Var("")
-
   val errorMessage = Var("")
 
   def main(): Unit = {
