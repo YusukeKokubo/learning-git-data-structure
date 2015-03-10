@@ -56,8 +56,7 @@ object TutorialApp extends JSApp {
         ul(
           for (r <- repositories()) yield {
             val refs = Var(Seq[Reference]())
-            li(r.name)(
-              referenceAnchor(r, refs),
+            li(referenceAnchor(r, refs),
               Rx {
                 ul(
                   for(rf <- refs()) yield  {
@@ -76,7 +75,7 @@ object TutorialApp extends JSApp {
     a(href:="#")(onclick:={() =>
       getReferences(Var(userInputBox.value)(), repo.name, refs)
       false
-    })("refs").render
+    })(repo.full_name).render
   }
 
   def getRepositories(user: String): Unit = {
