@@ -1,6 +1,6 @@
 package tutorial.webapp
 
-import lib.{Reference, Repository, GitHub}
+import lib.{Commit, Reference, Repository, GitHub}
 import org.scalajs.dom
 import org.scalajs.dom.Event
 import org.scalajs.dom.html.{Anchor, Element}
@@ -60,7 +60,18 @@ object TutorialApp extends JSApp {
               Rx {
                 ul(
                   for(rf <- refs()) yield  {
-                    li(rf.ref)
+                    val commits = Var(Seq[Commit]())
+                    li(commitAnchor(r, rf, commits),
+                      Rx {
+                        for(c <- commits()) {
+                          ul(
+                            li(c.author.name),
+                            li(c.sha),
+                            li(c.url)
+                          )
+                        }
+                      }
+                    )
                   }
                 )
               }
@@ -69,6 +80,13 @@ object TutorialApp extends JSApp {
         )
       }
     ).render
+  }
+
+  def commitAnchor(repo: Repository, ref: Reference, commit: Var[Seq[Commit]]): Element = {
+    a(href:="#")(onclick:={() =>
+      getCommit(Var(userInputBox.value)(), repo.name, ref.`object`.sha, commit)
+      false
+    })(ref.ref).render
   }
 
   def referenceAnchor(repo: Repository, refs: Var[Seq[Reference]]): Element = {
@@ -92,6 +110,15 @@ object TutorialApp extends JSApp {
   def getReferences(owner: String, repo: String, result: Var[Seq[Reference]]): Unit = {
     GitHub.refs(owner, repo).onComplete {
       case Success(msg) => result() = msg
+      case Failure(t) => errorMessage() = t.getMessage
+    }
+  }
+
+  def getCommit(owner: String, repo: String, sha: String, result: Var[Seq[Commit]]): Unit = {
+    GitHub.commit(owner, repo, sha).onComplete {
+      case Success(msg) =>
+        println(Seq(msg))
+        result() = Seq(msg)
       case Failure(t) => errorMessage() = t.getMessage
     }
   }

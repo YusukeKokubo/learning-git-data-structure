@@ -1,7 +1,5 @@
 package lib
 
-import java.time.LocalDateTime
-
 import scala.concurrent.Future
 
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
@@ -43,6 +41,10 @@ case class Reference(ref: String,
                      url: String,
                      `object`: ReferenceObject)
 
+case class Author(date: String, name: String, email: String)
+
+case class Commit(sha: String, url: String, author: Author)
+
 
 object GitHub {
 
@@ -59,6 +61,14 @@ object GitHub {
       res1 <- Ajax.get("https://api.github.com/repos/" + owner + "/" + repo + "/git/refs")
     } yield {
       read[Seq[Reference]](res1.responseText)
+    }
+  }
+
+  def commit(owner: String, repo: String, sha: String): Future[Commit] = {
+    for {
+      res1 <- Ajax.get("https://api.github.com/repos/" + owner + "/" + repo + "/git/commits/" + sha)
+    } yield {
+      read[Commit](res1.responseText)
     }
   }
 }
