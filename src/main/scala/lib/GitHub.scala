@@ -3,7 +3,6 @@ package lib
 import scala.concurrent.Future
 
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
-import scala.scalajs.js
 
 import upickle._
 
@@ -49,26 +48,34 @@ case class Tree(url: String, sha: String)
 
 object GitHub {
 
+  var hook = (url: String, res: String) => {}
+
   def repos(user: String): Future[Seq[Repository]] = {
+    val url = "https://api.github.com/users/" + user + "/repos"
     for {
-      res1 <- Ajax.get("https://api.github.com/users/" + user + "/repos")
+      res1 <- Ajax.get(url)
     } yield {
+      hook.apply(url, res1.responseText)
       read[Seq[Repository]](res1.responseText)
     }
   }
 
   def refs(owner: String, repo: String): Future[Seq[Reference]] = {
+    val url = "https://api.github.com/repos/" + owner + "/" + repo + "/git/refs"
     for {
-      res1 <- Ajax.get("https://api.github.com/repos/" + owner + "/" + repo + "/git/refs")
+      res1 <- Ajax.get(url)
     } yield {
+      hook.apply(url, res1.responseText)
       read[Seq[Reference]](res1.responseText)
     }
   }
 
   def commit(owner: String, repo: String, sha: String): Future[Commit] = {
+    val url = "https://api.github.com/repos/" + owner + "/" + repo + "/git/commits/" + sha
     for {
-      res1 <- Ajax.get("https://api.github.com/repos/" + owner + "/" + repo + "/git/commits/" + sha)
+      res1 <- Ajax.get(url)
     } yield {
+      hook.apply(url, res1.responseText)
       read[Commit](res1.responseText)
     }
   }

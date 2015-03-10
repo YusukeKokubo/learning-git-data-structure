@@ -22,7 +22,6 @@ object TutorialApp extends JSApp {
 
   val repositories: Var[Seq[Repository]] = Var(Seq[Repository]())
 
-
   val userInputBox = input(
     `id`:="userInputBox",
     autofocus:=true,
@@ -40,8 +39,16 @@ object TutorialApp extends JSApp {
 
   val errorMessage = Var("")
 
+  case class Debug(url: String, res: String)
+
+  val debug = Var(Seq[Debug]())
+
   def main(): Unit = {
     dom.document.body.appendChild(setupUI())
+    dom.document.body.appendChild(setupDebug())
+    GitHub.hook = (url: String, res: String) => {
+      debug() = Seq(Debug(url, res)) ++ debug()
+    }
   }
 
   def setupUI(): Element = {
@@ -53,7 +60,7 @@ object TutorialApp extends JSApp {
       },
       form(userInputBox, userSubmit),
       Rx {
-        ul(
+        ul(`class`:="repositories")(
           for (r <- repositories()) yield {
             val refs = Var(Seq[Reference]())
             li(referenceAnchor(r, refs),
@@ -80,6 +87,14 @@ object TutorialApp extends JSApp {
             )
           }
         )
+      }
+    ).render
+  }
+
+  def setupDebug(): Element = {
+    section(
+      Rx {
+        pre(`class`:="debug")(debug().map{d => "-----\n" + d.url + "\n" + d.res + "\n\n\n\n"})
       }
     ).render
   }
