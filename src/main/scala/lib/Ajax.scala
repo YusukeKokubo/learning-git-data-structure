@@ -18,7 +18,7 @@ object Ajax {
 //    req.withCredentials = true
 
     req.onreadystatechange = (e: Event) => {
-      if (req.readyState.toInt == 4) {
+      if (req.readyState == 4) {
         if (200 <= req.status && req.status < 300) {
           promise.success(req)
         } else {
