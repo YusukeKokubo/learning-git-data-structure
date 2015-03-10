@@ -3,7 +3,7 @@ package tutorial.webapp
 import lib.{Reference, Repository, GitHub}
 import org.scalajs.dom
 import org.scalajs.dom.Event
-import org.scalajs.dom.html.Element
+import org.scalajs.dom.html.{Anchor, Element}
 import rx.core.{Var, Rx}
 
 import scala.scalajs.js
@@ -57,10 +57,7 @@ object TutorialApp extends JSApp {
           for (r <- repositories()) yield {
             val refs = Var(Seq[Reference]())
             li(r.name)(
-              a(href:="#")(onclick:={() =>
-                getReferences(Var(userInputBox.value)(), r.name, refs)
-                false
-              })("refs"),
+              referenceAnchor(r, refs),
               Rx {
                 ul(
                   for(rf <- refs()) yield  {
@@ -73,6 +70,13 @@ object TutorialApp extends JSApp {
         )
       }
     ).render
+  }
+
+  def referenceAnchor(repo: Repository, refs: Var[Seq[Reference]]): Element = {
+    a(href:="#")(onclick:={() =>
+      getReferences(Var(userInputBox.value)(), repo.name, refs)
+      false
+    })("refs").render
   }
 
   def getRepositories(user: String): Unit = {
