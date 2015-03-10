@@ -43,8 +43,9 @@ case class Reference(ref: String,
 
 case class Author(date: String, name: String, email: String)
 
-case class Commit(sha: String, url: String, author: Author)
+case class Commit(sha: String, url: String, author: Author, committer: Author, message: String, tree: Tree, parents: Seq[Tree])
 
+case class Tree(url: String, sha: String)
 
 object GitHub {
 

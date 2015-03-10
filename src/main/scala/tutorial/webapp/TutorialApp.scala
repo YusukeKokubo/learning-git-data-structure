@@ -60,15 +60,17 @@ object TutorialApp extends JSApp {
               Rx {
                 ul(
                   for(rf <- refs()) yield  {
-                    val commits = Var(Seq[Commit]())
-                    li(commitAnchor(r, rf, commits),
+                    val commit = Var[Option[Commit]](None)
+                    li(commitAnchor(r, rf, commit),
                       Rx {
-                        for(c <- commits()) {
-                          ul(
-                            li(c.author.name),
-                            li(c.sha),
-                            li(c.url)
-                          )
+                        commit() match {
+                          case Some(c) =>
+                            div(`class`:="commit")(
+                              label(commit().get.author.date),
+                              label(commit().get.author.name),
+                              label(commit().get.message)
+                            )
+                          case None => span()
                         }
                       }
                     )
@@ -82,7 +84,7 @@ object TutorialApp extends JSApp {
     ).render
   }
 
-  def commitAnchor(repo: Repository, ref: Reference, commit: Var[Seq[Commit]]): Element = {
+  def commitAnchor(repo: Repository, ref: Reference, commit: Var[Option[Commit]]): Element = {
     a(href:="#")(onclick:={() =>
       getCommit(Var(userInputBox.value)(), repo.name, ref.`object`.sha, commit)
       false
@@ -114,11 +116,9 @@ object TutorialApp extends JSApp {
     }
   }
 
-  def getCommit(owner: String, repo: String, sha: String, result: Var[Seq[Commit]]): Unit = {
+  def getCommit(owner: String, repo: String, sha: String, result: Var[Option[Commit]]): Unit = {
     GitHub.commit(owner, repo, sha).onComplete {
-      case Success(msg) =>
-        println(Seq(msg))
-        result() = Seq(msg)
+      case Success(msg) => result() = Some(msg)
       case Failure(t) => errorMessage() = t.getMessage
     }
   }
