@@ -1,13 +1,4 @@
-ul.repositories {
-    max-height: 400px;
-    overflow: scroll;
-}
-
 div.commit label {
     margin: 0 7px;
 }
 
-pre.debug {
-    max-height: 400px;
-    overflow: scroll;
-}

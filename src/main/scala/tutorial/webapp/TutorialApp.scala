@@ -44,8 +44,8 @@ object TutorialApp extends JSApp {
   val debug = Var(Seq[Debug]())
 
   def main(): Unit = {
-    dom.document.body.appendChild(setupUI())
-    dom.document.body.appendChild(setupDebug())
+    dom.document.getElementById("repositories").appendChild(setupUI())
+    dom.document.getElementById("debug").appendChild(setupDebug())
     GitHub.hook = (url: String, res: String) => {
       debug() = Seq(Debug(url, res)) ++ debug()
     }
@@ -60,7 +60,7 @@ object TutorialApp extends JSApp {
       },
       form(userInputBox, userSubmit),
       Rx {
-        ul(`class`:="repositories")(
+        ul(
           for (r <- repositories()) yield {
             val refs = Var(Seq[Reference]())
             li(referenceAnchor(r, refs),
@@ -92,9 +92,20 @@ object TutorialApp extends JSApp {
   }
 
   def setupDebug(): Element = {
-    section(
+    div(`class`:="panel-group", role:="tablist", id:="accordion", aria.multiselectable:=true)(
       Rx {
-        pre(`class`:="debug")(debug().map{d => "-----\n" + d.url + "\n" + d.res + "\n\n\n\n"})
+        debug().zipWithIndex.map { case(d, i) =>
+          div(`class` := "panel panel-default")(
+            div(`class` := "panel-heading", role := "tab", id:="hedding" + i)(
+              h4(`class` := "panel-title")(
+                a(data.toggle := "collapse", data.parent := "#accordion", aria.expanded := false, aria.controls := "collapse" + i, href:="#collapse" + i)(d.url)
+              )
+            ),
+            div(`class`:="panel-collapse collapse in", role:="tabpanel", aria.labelledby:="hedding" + i, id:="collapse" + i, aria.expanded:=false)(
+              div(`class`:="panel-body")(pre(d.res))
+            )
+          )
+        }
       }
     ).render
   }
