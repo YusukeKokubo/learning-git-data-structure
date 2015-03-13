@@ -101,7 +101,7 @@ object TutorialApp extends JSApp {
                 a(data.toggle := "collapse", data.parent := "#accordion", aria.expanded := false, aria.controls := "collapse" + i, href:="#collapse" + i)(d.url)
               )
             ),
-            div(`class`:="panel-collapse collapse in", role:="tabpanel", aria.labelledby:="hedding" + i, id:="collapse" + i, aria.expanded:=false)(
+            div(`class`:="panel-collapse collapse " + (if(i == 0) "in" else ""), role:="tabpanel", aria.labelledby:="hedding" + i, id:="collapse" + i, aria.expanded:=false)(
               div(`class`:="panel-body")(pre(d.res))
             )
           )
