@@ -71,7 +71,7 @@ object TutorialApp extends JSApp {
                     li(commitAnchor(r, rf.`object`.sha, rf.ref, commits),
                       Rx {
                         ul(
-                          for (c <- commits()) {
+                          for (c <- commits()) yield {
                             li(`class`:="commit")(
                               label(c.author.date),
                               label(c.author.name),
