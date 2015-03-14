@@ -61,34 +61,7 @@ object TutorialApp extends JSApp {
       form(userInputBox, userSubmit),
       Rx {
         ul(
-          for (r <- repositories()) yield {
-            val refs = Var(Seq[Reference]())
-            li(referenceAnchor(r, refs),
-              Rx {
-                ul(
-                  for(rf <- refs()) yield  {
-                    val commits = Var(List[Commit]())
-                    li(commitAnchor(r, rf.`object`.sha, rf.ref, commits),
-                      Rx {
-                        ul(
-                          for (c <- commits()) yield {
-                            li(`class`:="commit")(
-                              label(c.author.date),
-                              label(c.author.name),
-                              label(c.message)
-                            )
-                          },
-                          for (p <- if (!commits().isEmpty) commits().reverse.head.parents else Seq()) yield {
-                            li(commitAnchor(r, p.sha, p.sha.substring(0, 6), commits))
-                          }
-                        )
-                      }
-                    )
-                  }
-                )
-              }
-            )
-          }
+          repositories().map { showRepository }
         )
       }
     ).render
@@ -110,6 +83,39 @@ object TutorialApp extends JSApp {
           )
         }
       }
+    ).render
+  }
+
+  def showRepository(r: Repository): Element = {
+    val refs = Var(Seq[Reference]())
+    li(referenceAnchor(r, refs),
+      Rx {
+        ul(
+          refs().map { showReference(r, _) }
+        )
+      }
+    ).render
+  }
+
+  def showReference(r: Repository, ref: Reference): Element = {
+    val commits = Var(List[Commit]())
+    li(commitAnchor(r, ref.`object`.sha, ref.ref, commits),
+      Rx {
+        ul(
+          commits().map { showCommit },
+          for (p <- if (!commits().isEmpty) commits().reverse.head.parents else Seq()) yield {
+            li(commitAnchor(r, p.sha, p.sha.substring(0, 6), commits))
+          }
+        )
+      }
+    ).render
+  }
+
+  def showCommit(commit: Commit): Element = {
+    li(`class`:="commit")(
+      label(commit.author.date),
+      label(commit.author.name),
+      label(commit.message)
     ).render
   }
 
