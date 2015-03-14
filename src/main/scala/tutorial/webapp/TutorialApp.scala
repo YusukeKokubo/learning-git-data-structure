@@ -79,7 +79,7 @@ object TutorialApp extends JSApp {
                             )
                           },
                           for (p <- if (!commits().isEmpty) commits().reverse.head.parents else Seq()) yield {
-                            li(commitAnchor(r, p.sha, "parent", commits))
+                            li(commitAnchor(r, p.sha, p.sha.substring(0, 6), commits))
                           }
                         )
                       }
