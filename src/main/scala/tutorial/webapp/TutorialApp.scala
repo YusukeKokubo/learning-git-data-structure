@@ -41,13 +41,13 @@ object TutorialApp extends JSApp {
 
   case class Debug(url: String, res: String)
 
-  val debug = Var(Seq[Debug]())
+  val debug = Var(List[Debug]())
 
   def main(): Unit = {
     dom.document.getElementById("repositories").appendChild(setupUI())
     dom.document.getElementById("debug").appendChild(setupDebug())
     GitHub.hook = (url: String, res: String) => {
-      debug() = Seq(Debug(url, res)) ++ debug()
+      debug() = Debug(url, res) :: debug()
     }
   }
 
