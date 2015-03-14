@@ -68,15 +68,20 @@ object TutorialApp extends JSApp {
                 ul(
                   for(rf <- refs()) yield  {
                     val commits = Var(List[Commit]())
-                    li(commitAnchor(r, rf, commits),
+                    li(commitAnchor(r, rf.`object`.sha, rf.ref, commits),
                       Rx {
-                        for (c <- commits()) {
-                          div(`class`:="commit")(
-                            label(c.author.date),
-                            label(c.author.name),
-                            label(c.message)
-                          )
-                        }
+                        ul(
+                          for (c <- commits()) {
+                            li(`class`:="commit")(
+                              label(c.author.date),
+                              label(c.author.name),
+                              label(c.message)
+                            )
+                          },
+                          for (p <- if (!commits().isEmpty) commits().reverse.head.parents else Seq()) yield {
+                            li(commitAnchor(r, p.sha, "parent", commits))
+                          }
+                        )
                       }
                     )
                   }
@@ -108,11 +113,11 @@ object TutorialApp extends JSApp {
     ).render
   }
 
-  def commitAnchor(repo: Repository, ref: Reference, commits: Var[List[Commit]]): Element = {
+  def commitAnchor(repo: Repository, sha: String, caption: String, commits: Var[List[Commit]]): Element = {
     a(href:="#")(onclick:={() =>
-      getCommit(Var(userInputBox.value)(), repo.name, ref.`object`.sha, commits)
+      getCommit(Var(userInputBox.value)(), repo.name, sha, commits)
       false
-    })(ref.ref).render
+    })(caption).render
   }
 
   def referenceAnchor(repo: Repository, refs: Var[Seq[Reference]]): Element = {
