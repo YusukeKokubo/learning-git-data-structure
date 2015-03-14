@@ -67,17 +67,15 @@ object TutorialApp extends JSApp {
               Rx {
                 ul(
                   for(rf <- refs()) yield  {
-                    val commit = Var[Option[Commit]](None)
-                    li(commitAnchor(r, rf, commit),
+                    val commits = Var(List[Commit]())
+                    li(commitAnchor(r, rf, commits),
                       Rx {
-                        commit() match {
-                          case Some(c) =>
-                            div(`class`:="commit")(
-                              label(commit().get.author.date),
-                              label(commit().get.author.name),
-                              label(commit().get.message)
-                            )
-                          case None => span()
+                        for (c <- commits()) {
+                          div(`class`:="commit")(
+                            label(c.author.date),
+                            label(c.author.name),
+                            label(c.message)
+                          )
                         }
                       }
                     )
@@ -110,9 +108,9 @@ object TutorialApp extends JSApp {
     ).render
   }
 
-  def commitAnchor(repo: Repository, ref: Reference, commit: Var[Option[Commit]]): Element = {
+  def commitAnchor(repo: Repository, ref: Reference, commits: Var[List[Commit]]): Element = {
     a(href:="#")(onclick:={() =>
-      getCommit(Var(userInputBox.value)(), repo.name, ref.`object`.sha, commit)
+      getCommit(Var(userInputBox.value)(), repo.name, ref.`object`.sha, commits)
       false
     })(ref.ref).render
   }
@@ -142,9 +140,9 @@ object TutorialApp extends JSApp {
     }
   }
 
-  def getCommit(owner: String, repo: String, sha: String, result: Var[Option[Commit]]): Unit = {
+  def getCommit(owner: String, repo: String, sha: String, result: Var[List[Commit]]): Unit = {
     GitHub.commit(owner, repo, sha).onComplete {
-      case Success(msg) => result() = Some(msg)
+      case Success(msg) => result() = result() :+ msg
       case Failure(t) => errorMessage() = t.getMessage
     }
   }
