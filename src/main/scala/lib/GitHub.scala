@@ -42,16 +42,21 @@ case class Reference(ref: String,
 
 case class Author(date: String, name: String, email: String)
 
-case class Commit(sha: String, url: String, author: Author, committer: Author, message: String, tree: Tree, parents: Seq[Tree])
+case class Commit(sha: String, url: String, author: Author, committer: Author, message: String, tree: TreeInCommit, parents: Seq[TreeInCommit])
 
-case class Tree(url: String, sha: String)
+case class TreeInCommit(url: String, sha: String)
+
+case class Trees(sha: String, url: String, tree: Seq[Tree], truncated: Boolean)
+
+case class Tree(path: String, mode: String, `type`: String, sha: String, url: String)
 
 object GitHub {
 
   var hook = (url: String, res: String) => {}
+  val rootUrl = "https://api.github.com"
 
   def repos(user: String): Future[Seq[Repository]] = {
-    val url = "https://api.github.com/users/" + user + "/repos"
+    val url = s"$rootUrl/users/$user/repos"
     for {
       res1 <- Ajax.get(url)
     } yield {
@@ -61,7 +66,7 @@ object GitHub {
   }
 
   def refs(owner: String, repo: String): Future[Seq[Reference]] = {
-    val url = "https://api.github.com/repos/" + owner + "/" + repo + "/git/refs"
+    val url = s"$rootUrl/repos/$owner/$repo/git/refs"
     for {
       res1 <- Ajax.get(url)
     } yield {
@@ -71,12 +76,22 @@ object GitHub {
   }
 
   def commit(owner: String, repo: String, sha: String): Future[Commit] = {
-    val url = "https://api.github.com/repos/" + owner + "/" + repo + "/git/commits/" + sha
+    val url = s"$rootUrl/repos/$owner/$repo/git/commits/$sha"
     for {
       res1 <- Ajax.get(url)
     } yield {
       hook.apply(url, res1.responseText)
       read[Commit](res1.responseText)
+    }
+  }
+
+  def trees(owner: String, repo: String, sha: String): Future[Trees] = {
+    val url = s"$rootUrl/repos/$owner/$repo/git/trees/$sha?recursive=10"
+    for {
+      res1 <- Ajax.get(url)
+    } yield {
+      hook.apply(url, res1.responseText)
+      read[Trees](res1.responseText)
     }
   }
 }

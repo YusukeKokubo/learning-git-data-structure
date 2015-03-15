@@ -1,3 +1,7 @@
+#repositories {
+    overflow: scroll;
+}
+
 div.commit label {
     margin: 0 7px;
 }

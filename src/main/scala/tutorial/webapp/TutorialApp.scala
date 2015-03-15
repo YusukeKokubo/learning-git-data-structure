@@ -1,6 +1,6 @@
 package tutorial.webapp
 
-import lib.{Commit, Reference, Repository, GitHub}
+import lib._
 import org.scalajs.dom
 import org.scalajs.dom.Event
 import org.scalajs.dom.html.{Anchor, Element}
@@ -106,7 +106,7 @@ object TutorialApp extends JSApp {
     li(commitAnchor(r, ref.`object`.sha, ref.ref, commits),
       Rx {
         ul(
-          commits().map { showCommit },
+          commits().map { showCommit(r, _) },
           for (p <- if (!commits().isEmpty) commits().reverse.head.parents else Seq()) yield {
             li(commitAnchor(r, p.sha, p.sha.substring(0, 6), commits))
           }
@@ -115,11 +115,26 @@ object TutorialApp extends JSApp {
     ).render
   }
 
-  def showCommit(commit: Commit): Element = {
+  def showCommit(repo: Repository, commit: Commit): Element = {
+    val trees = Var[Option[Trees]](None)
     li(`class`:="commit")(
       label(commit.author.date),
       label(commit.author.name),
-      label(commit.message)
+      label(commit.message),
+      a(href:="#")(span(`class`:="glyphicon glyphicon-plus", aria.hidden:=true))(onclick:={() =>
+        getTrees(Var(userInputBox.value)(), repo.name, commit.sha, trees)
+      }),
+      Rx {
+        ul(
+          trees() match {
+            case Some(ts) =>
+              ts.tree.map{t =>
+                li(t.path)(if (t.`type` == "tree") span(`class`:="glyphicon glyphicon-tree-deciduous") else ())
+              }
+            case None => {}
+          }
+        )
+      }
     ).render
   }
 
@@ -158,6 +173,13 @@ object TutorialApp extends JSApp {
   def getCommit(owner: String, repo: String, sha: String, result: Var[List[Commit]]): Unit = {
     GitHub.commit(owner, repo, sha).onComplete {
       case Success(msg) => result() = result() :+ msg
+      case Failure(t) => errorMessage() = t.getMessage
+    }
+  }
+
+  def getTrees(owner: String, repo: String, sha: String, result: Var[Option[Trees]]): Unit = {
+    GitHub.trees(owner, repo, sha).onComplete {
+      case Success(msg) => result() = Some(msg)
       case Failure(t) => errorMessage() = t.getMessage
     }
   }
