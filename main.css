@@ -5,3 +5,7 @@ div.commit label {
 #debug pre {
     overflow-x: scroll;
 }
+
+li.commit label {
+    margin: 0 5px;
+}
