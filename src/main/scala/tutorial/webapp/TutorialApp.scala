@@ -44,6 +44,7 @@ object TutorialApp extends JSApp {
   val debug = Var(List[Debug]())
 
   def main(): Unit = {
+    dom.document.getElementById("error").appendChild(showError())
     dom.document.getElementById("repositories").appendChild(setupUI())
     dom.document.getElementById("debug").appendChild(setupDebug())
     GitHub.hook = (url: String, res: String) => {
@@ -53,11 +54,6 @@ object TutorialApp extends JSApp {
 
   def setupUI(): Element = {
     section(
-      Rx {
-        div(`class`:="error")(
-          p(errorMessage())
-        )
-      },
       form(userInputBox, userSubmit),
       Rx {
         ul(
@@ -82,6 +78,14 @@ object TutorialApp extends JSApp {
             )
           )
         }
+      }
+    ).render
+  }
+
+  def showError(): Element = {
+    div(`class`:="error")(
+      Rx {
+        p(errorMessage())
       }
     ).render
   }
