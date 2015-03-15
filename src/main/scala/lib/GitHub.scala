@@ -50,6 +50,8 @@ case class Trees(sha: String, url: String, tree: Seq[Tree], truncated: Boolean)
 
 case class Tree(path: String, mode: String, `type`: String, sha: String, url: String)
 
+case class Blob(content: String, encoding: String, url: String, sha: String, size: Int)
+
 object GitHub {
 
   var hook = (url: String, res: String) => {}
@@ -92,6 +94,16 @@ object GitHub {
     } yield {
       hook.apply(url, res1.responseText)
       read[Trees](res1.responseText)
+    }
+  }
+
+  def blob(owner: String, repo: String, sha: String): Future[String] = {
+    val url = s"$rootUrl/repos/$owner/$repo/git/blobs/$sha"
+    for {
+      res1 <- Ajax.get(url)
+    } yield {
+      hook.apply(url, res1.responseText)
+      res1.responseText
     }
   }
 }

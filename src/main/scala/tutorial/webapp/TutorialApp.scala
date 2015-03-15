@@ -129,7 +129,13 @@ object TutorialApp extends JSApp {
           trees() match {
             case Some(ts) =>
               ts.tree.map{t =>
-                li(t.path)(if (t.`type` == "tree") span(`class`:="glyphicon glyphicon-tree-deciduous") else ())
+                if (t.`type` == "tree") {
+                  li(t.path)(span(`class`:="glyphicon glyphicon-tree-deciduous"))
+                } else {
+                  li(a(t.path)(onclick:={() =>
+                    getBlob(Var(userInputBox.value)(), repo.name, t.sha)
+                  }))
+                }
               }
             case None => {}
           }
@@ -180,6 +186,13 @@ object TutorialApp extends JSApp {
   def getTrees(owner: String, repo: String, sha: String, result: Var[Option[Trees]]): Unit = {
     GitHub.trees(owner, repo, sha).onComplete {
       case Success(msg) => result() = Some(msg)
+      case Failure(t) => errorMessage() = t.getMessage
+    }
+  }
+
+  def getBlob(owner: String, repo: String, sha: String): Unit = {
+    GitHub.blob(owner, repo, sha).onComplete {
+      case Success(msg) => {}
       case Failure(t) => errorMessage() = t.getMessage
     }
   }

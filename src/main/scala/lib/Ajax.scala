@@ -28,6 +28,7 @@ object Ajax {
     }
 
     req.open(method, url, true)
+    req.setRequestHeader("Accept", "application/vnd.github.VERSION.raw")
 
     data match {
       case Some(d) =>
