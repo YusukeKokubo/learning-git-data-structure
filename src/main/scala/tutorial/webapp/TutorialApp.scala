@@ -154,7 +154,7 @@ object TutorialApp extends JSApp {
     a(href:="#")(onclick:={() =>
       getReferences(Var(userInputBox.value)(), repo.name, refs)
       false
-    })(repo.full_name).render
+    })(repo.name).render
   }
 
   def getRepositories(user: String): Unit = {
