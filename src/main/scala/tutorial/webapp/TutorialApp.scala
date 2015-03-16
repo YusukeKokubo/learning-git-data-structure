@@ -21,6 +21,7 @@ object TutorialApp extends JSApp {
 
   val userInputBox = input(
     `id`:="userInputBox",
+    `class`:= "form-control",
     autofocus:=true,
     autocomplete:=false,
     placeholder := "user name here.",
@@ -29,6 +30,7 @@ object TutorialApp extends JSApp {
 
   val userSubmit = button(
     `type`:="submit",
+    `class`:="btn btn-default",
     onclick:={ () =>
       getRepositories(Var(userInputBox.value)())
       false
@@ -51,7 +53,7 @@ object TutorialApp extends JSApp {
 
   def setupUI(): Element = {
     section(
-      form(userInputBox, userSubmit),
+      form(`class`:="form-inline")(div(`class`:="form-group", i(`class`:="fa fa-github-alt fa-3"), userInputBox), userSubmit),
       Rx {
         ul(
           repositories().map { showRepository }

@@ -13,3 +13,7 @@ div.commit label {
 li.commit label {
     margin: 0 5px;
 }
+
+i.fa-3 {
+    font-size: 1.8em;
+}
