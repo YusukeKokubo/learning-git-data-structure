@@ -2,13 +2,10 @@ package tutorial.webapp
 
 import lib._
 import org.scalajs.dom
-import org.scalajs.dom.Event
-import org.scalajs.dom.html.{Anchor, Element}
+import org.scalajs.dom.html.{Element}
 import rx.core.{Var, Rx}
 
-import scala.scalajs.js
 import scala.scalajs.js.{JSApp}
-import org.scalajs.jquery.jQuery
 
 import scala.util.{Failure, Success}
 
