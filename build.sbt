@@ -20,3 +20,7 @@ jsDependencies += "org.webjars" % "bootstrap" % "3.3.2-2" / "bootstrap.js" depen
 
 
 testFrameworks += new TestFramework("utest.runner.Framework")
+
+persistLauncher in Compile := true
+
+persistLauncher in Test := false
