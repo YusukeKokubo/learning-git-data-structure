@@ -15,4 +15,8 @@ project/plugins/project/
 .scala_dependencies
 .worksheet
 .idea/
-target/
+project/
+target/resolution-cache
+target/scala-2.11/classes
+target/streams
+target/.history
