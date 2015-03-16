@@ -17,3 +17,8 @@ li.commit label {
 i.fa-3 {
     font-size: 1.8em;
 }
+
+ul {
+    list-style: none;
+    padding-left: 8px;
+}
